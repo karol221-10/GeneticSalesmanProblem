@@ -45,4 +45,13 @@ export class SalesmanmapComponent implements OnInit, AfterViewInit {
     this.cx.strokeStyle = '#000000';
     this.cx.stroke();
   }
+
+  public drawConnection(sourceCity: City, destinationCity: City) {
+    this.cx.beginPath();
+    this.cx.moveTo(sourceCity.x, sourceCity.y);
+    this.cx.lineTo(destinationCity.x, destinationCity.y);
+    this.cx.lineWidth = 1;
+    this.cx.strokeStyle = '#FF0000';
+    this.cx.stroke();
+  }
 }

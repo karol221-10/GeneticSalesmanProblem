@@ -15,4 +15,10 @@ export class City {
     this._x = x;
     this._y = y;
   }
+
+  public getDistance(otherCity: City): number {
+    const xDistance = otherCity.x - this.x;
+    const yDistance = otherCity.y - this.y;
+    return Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
+  }
 }
