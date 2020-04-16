@@ -1,30 +1,51 @@
 import {City} from './City';
 
 export class Tour {
-  private cities: City[] = [];
-  private fitness = 0;
-  private distance = 0;
+  private _cities: City[] = [];
 
-  public generate(existingCities: City[]) {
-    this.cities.push(...existingCities);
-    this.shuffle(this.cities);
-    console.log('Generated tour: ' + this.cities)
+  get distance(): number {
+    const citiesPairs = this.getCitiesPairs();
+    let distanceToCalc = 0;
+    citiesPairs.forEach(cityPair => {
+      const cityFrom = cityPair[0];
+      const cityTo = cityPair[1];
+      distanceToCalc += cityFrom.getDistance(cityTo);
+    });
+    return distanceToCalc;
   }
 
-  public setCity(position, city : City) {
-    this.cities[position] = city;
-    this.fitness = 0;
-    this.distance = 0;
+  get cities() {
+    return this._cities;
+  }
+
+  get fitness(): number {
+    return 1 / this.distance;
+  }
+
+  get size(): number {
+    return this._cities.length;
+  }
+
+  public generate(existingCities: City[]) {
+    this._cities.push(...existingCities);
+    this.shuffle(this._cities);
+  }
+
+  public setCity(position, city: City) {
+    this._cities[position] = city;
   }
 
   public getCitiesPairs() {
     const citiesPairs: [City, City][] = [];
-    for (let i = 0; i < this.cities.length - 1; i ++) {
-      citiesPairs.push([this.cities[i], this.cities[i + 1]]);
+    for (let i = 0; i < this._cities.length - 1; i ++) {
+      citiesPairs.push([this._cities[i], this._cities[i + 1]]);
     }
-    citiesPairs.push([this.cities[this.cities.length - 1], this.cities[0]]);
-    console.log(citiesPairs);
+    citiesPairs.push([this._cities[this._cities.length - 1], this._cities[0]]);
     return citiesPairs;
+  }
+
+  public contains(city: City): boolean {
+    return this.cities.includes(city);
   }
 
   private shuffle(array) {

@@ -24,6 +24,13 @@
           <button type="button" mdbBtn color="primary" mdbWavesEffect (click)="onGenerateButtonClick()">Generuj</button>
         </div>
       </div>
+      <div class="row popdata">
+        <div *ngIf="population != null" class="col-md-12">
+          <h4>Dane populacji</h4>
+          <p>Długość podróży: {{population.getFittiest().distance}}</p>
+          <button type="button" mdbBtn color="primary" mdbWavesEffect (click)="onEvolvePopulationClick()">Ewoluuj</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
