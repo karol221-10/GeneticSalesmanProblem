@@ -21,8 +21,8 @@ export class SalesmanmapComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     const canvasEl: HTMLCanvasElement = this.canvas.nativeElement;
     this.cx = canvasEl.getContext('2d');
-    this.width = canvasEl.width;
-    this.height = canvasEl.height;
+    this.width = canvasEl.width = 1920;
+    this.height = canvasEl.height = 1080;
   }
 
   public clear() {
@@ -38,7 +38,7 @@ export class SalesmanmapComponent implements OnInit, AfterViewInit {
     this.cx.lineCap = 'round';
     this.cx.fillStyle = 'rgba(0, 0, 0, 1)';
     this.cx.lineWidth = 1;
-    this.cx.arc(city.x, city.y, 0.25, 0, 2 * Math.PI);
+    this.cx.arc(city.x, city.y, 3, 0, 2 * Math.PI);
     this.cx.fillStyle = '#000000';
     this.cx.fill();
     this.cx.lineWidth = 2;
