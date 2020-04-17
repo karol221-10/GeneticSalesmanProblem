@@ -11,8 +11,8 @@ export class Population {
     return this._tours.length;
   }
 
-  constructor(populationSize: number) {
-    this._tours = new Array(populationSize).fill(null);
+  constructor(populationSize: string) {
+    this._tours = new Array(parseInt(populationSize, 10)).fill(null);
   }
   public init(citiesList: City[]) {
     for (let i = 0; i < this._tours.length; i++) {

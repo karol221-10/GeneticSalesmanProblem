@@ -2,12 +2,14 @@ import {Population} from '../types/Population';
 import {Tour} from '../types/Tour';
 
 export class Genetic {
-  private static mutationRate = 0.015;
-  private static tournamentSize = 5;
-  private static ellitism = false;
+  private static _mutationRate = 0.015;
+  private static _tournamentSize = 5;
+  private static ellitism = true;
 
-  public static evolvePopulation(population: Population) {
-    const newPopulation: Population = new Population(population.size);
+  public static evolvePopulation(population: Population, tournamentSize: number, mutationRate: number) {
+    this._mutationRate = mutationRate;
+    this._tournamentSize = tournamentSize;
+    const newPopulation: Population = new Population(String(population.size));
 
     let ellitismOffset = 0;
     if (this.ellitism) {
@@ -16,10 +18,7 @@ export class Genetic {
     }
 
     for (let i = 0; i < newPopulation.size; i++) {
-      const parent1 = this.tournamentSelection(population);
-      const parent2 = this.tournamentSelection(population);
-      const child = this.crossover(parent1, parent2);
-      newPopulation.saveTour(i, child);
+      this.performCrossOver(population, newPopulation, i);
     }
     for (let i = ellitismOffset; i < newPopulation.size; i++) {
       this.mutate(newPopulation.tours[i]);
@@ -27,9 +26,16 @@ export class Genetic {
     return newPopulation;
   }
 
+  private static performCrossOver(population: Population, newPopulation: Population, index: number) {
+        const parent1 = this.tournamentSelection(population);
+        const parent2 = this.tournamentSelection(population);
+        const child = this.crossover(parent1, parent2);
+        newPopulation.saveTour(index, child);
+  }
+
   private static tournamentSelection(population: Population): Tour {
-    const populationTournament = new Population(this.tournamentSize);
-    for (let i = 0; i < this.tournamentSize; i++) {
+    const populationTournament = new Population(String(this._tournamentSize));
+    for (let i = 0; i < this._tournamentSize; i++) {
       const randomedId = Math.floor(Math.random() * population.size);
       populationTournament.saveTour(i, population.tours[randomedId]);
     }
@@ -68,7 +74,7 @@ export class Genetic {
 
   private static mutate(tour: Tour) {
     for (let tourPos1 = 0; tourPos1 < tour.size; tourPos1++) {
-      if (Math.random() < this.mutationRate) {
+      if (Math.random() < this._mutationRate) {
         const tourPos2 = Math.floor(Math.random() * tour.size);
         [tour.cities[tourPos1], tour.cities[tourPos2]] = [tour.cities[tourPos2], tour.cities[tourPos1]];
       }

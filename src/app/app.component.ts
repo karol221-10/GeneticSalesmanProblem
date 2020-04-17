@@ -20,7 +20,7 @@ export class AppComponent {
   numberOfCities: number;
   private cities: City[] = [];
   population: Population;
-  private populationSize = 50; // TODO - in editbox
+  populationSize = '50';
   neededPopulationCount: number;
   singleIterationTime: number;
   private timer: Observable<number> = null;
@@ -28,8 +28,13 @@ export class AppComponent {
   private timerStarted = false;
   private leftPopulations = 0;
   populationGeneration = 1;
+  mutationRate = 0.015;
+  tournamentCount = 10;
 
   onGenerateButtonClick() {
+    this.populationGeneration = 1;
+    this.leftPopulations = 0;
+    if (this.timerSubscription != null) this.timerSubscription.unsubscribe();
     this.salesmanMap.clear();
     this.townManager.clear();
     this.cities = this.townManager.generateCities(this.numberOfCities, this.salesmanMap.width, this.salesmanMap.height);
@@ -71,7 +76,7 @@ export class AppComponent {
   }
 
   private performSingleEvolutionStep() {
-    this.population = Genetic.evolvePopulation(this.population);
+    this.population = Genetic.evolvePopulation(this.population, this.tournamentCount, this.mutationRate);
     this.populationGeneration++;
     this.salesmanMap.clear();
     const bestTour = this.population.getFittiest();

@@ -21,6 +21,18 @@
             <input mdbInput type="text" [(ngModel)]="numberOfCities" id="form1" class="form-control">
             <label for="form1">Ilość miast</label>
           </div>
+          <div class="md-form">
+            <input mdbInput type="text" [(ngModel)]="populationSize" id="form4" class="form-control">
+            <label for="form4">Wielkość pojedynczej populacji</label>
+          </div>
+          <div class="md-form">
+            <input mdbInput type="text" [(ngModel)]="mutationRate" id="form5" class="form-control">
+            <label for="form5">Prawdopodobieństwo mutacji</label>
+          </div>
+          <div class="md-form">
+            <input mdbInput type="text" [(ngModel)]="tournamentCount" id="form6" class="form-control">
+            <label for="form6">Ilość tras do krzyżowania</label>
+          </div>
           <button type="button" mdbBtn color="primary" mdbWavesEffect (click)="onGenerateButtonClick()">Generuj</button>
         </div>
       </div>
