@@ -19,7 +19,7 @@
           <h4>Ustawienia algorytmu</h4>
           <div class="md-form">
             <input mdbInput type="text" [(ngModel)]="numberOfCities" id="form1" class="form-control">
-            <label for="form1" class="">Ilość miast</label>
+            <label for="form1">Ilość miast</label>
           </div>
           <button type="button" mdbBtn color="primary" mdbWavesEffect (click)="onGenerateButtonClick()">Generuj</button>
         </div>
@@ -27,8 +27,23 @@
       <div class="row popdata">
         <div *ngIf="population != null" class="col-md-12">
           <h4>Dane populacji</h4>
+          <p>Generacja populacji: {{populationGeneration}}</p>
           <p>Długość podróży: {{population.getFittiest().distance}}</p>
-          <button type="button" mdbBtn color="primary" mdbWavesEffect (click)="onEvolvePopulationClick()">Ewoluuj</button>
+          <div>
+            <div class="row">
+              <div class="md-form">
+                <input mdbInput type="text" [(ngModel)]="neededPopulationCount" id="form2" class="form-control">
+                <label for="form2">Ilość populacji</label>
+              </div>
+              <div class="md-form">
+                <input mdbInput type="text" [(ngModel)]="singleIterationTime" id="form3" class="form-control">
+                <label for="form3">Czas pojedynczej iteracji (s)</label>
+              </div>
+              <div class="md-form">
+                <button type="button" style="margin-left: 15px" mdbBtn color="primary" mdbWavesEffect (click)="onEvolvePopulationClick()">Ewoluuj</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

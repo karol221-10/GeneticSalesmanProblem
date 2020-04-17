@@ -5,6 +5,7 @@ import {TownManager} from './algorithms/TownManager';
 import {Tour} from './types/Tour';
 import {Population} from './types/Population';
 import { Genetic } from './algorithms/Genetic';
+import { timer, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -20,7 +21,13 @@ export class AppComponent {
   private cities: City[] = [];
   population: Population;
   private populationSize = 50; // TODO - in editbox
-
+  neededPopulationCount: number;
+  singleIterationTime: number;
+  private timer: Observable<number> = null;
+  private timerSubscription;
+  private timerStarted = false;
+  private leftPopulations = 0;
+  populationGeneration = 1;
 
   onGenerateButtonClick() {
     this.salesmanMap.clear();
@@ -40,7 +47,32 @@ export class AppComponent {
   }
 
   onEvolvePopulationClick() {
+    if (this.timerStarted === true) {
+      this.stopTimer();
+    }
+    this.startEvolvePopulationTimer(this.singleIterationTime * 1000);
+  }
+
+  private stopTimer() {
+    this.timerStarted = false;
+    this.timerSubscription.unsubscribe();
+  }
+
+  private startEvolvePopulationTimer(evolveStepTime: number) {
+    this.leftPopulations = this.neededPopulationCount;
+    this.timer = timer(evolveStepTime, evolveStepTime);
+    this.timerSubscription = this.timer.subscribe(t => {
+      this.performSingleEvolutionStep();
+      if (this.leftPopulations === 0) {
+        this.timerSubscription.unsubscribe();
+      }
+      this.leftPopulations--;
+    });
+  }
+
+  private performSingleEvolutionStep() {
     this.population = Genetic.evolvePopulation(this.population);
+    this.populationGeneration++;
     this.salesmanMap.clear();
     const bestTour = this.population.getFittiest();
     this.cities.forEach(city => {
