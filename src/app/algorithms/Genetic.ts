@@ -1,12 +1,21 @@
 import {Population} from '../types/Population';
 import {Tour} from '../types/Tour';
+import {CrossoverStrategy} from './crossover/CrossoverStrategy';
+import {PMXCrossoverStrategy} from './crossover/PMXCrossoverStrategy';
 
 export class Genetic {
-  private static _mutationRate = 0.015;
-  private static _tournamentSize = 5;
-  private static ellitism = true;
+  private _mutationRate = 0.015;
+  private _tournamentSize = 5;
+  private ellitism = true;
+  private strategies: CrossoverStrategy[] = [];
+  private selectedStrategy: CrossoverStrategy;
 
-  public static evolvePopulation(population: Population, tournamentSize: number, mutationRate: number) {
+  constructor() {
+    this.strategies.push(new PMXCrossoverStrategy());
+    this.selectedStrategy = this.strategies[0];
+  }
+
+  public evolvePopulation(population: Population, tournamentSize: number, mutationRate: number) {
     this._mutationRate = mutationRate;
     this._tournamentSize = tournamentSize;
     const newPopulation: Population = new Population(String(population.size));
@@ -26,14 +35,15 @@ export class Genetic {
     return newPopulation;
   }
 
-  private static performCrossOver(population: Population, newPopulation: Population, index: number) {
+  private performCrossOver(population: Population, newPopulation: Population, index: number) {
         const parent1 = this.tournamentSelection(population);
         const parent2 = this.tournamentSelection(population);
-        const child = this.crossover(parent1, parent2);
-        newPopulation.saveTour(index, child);
+        this.selectedStrategy.prepareStrategyData(parent1, parent2);
+        const childrens = this.selectedStrategy.generateTourFromParents(parent1, parent2);
+        newPopulation.saveTour(index, childrens[0].fitness > childrens[1].fitness ? childrens[0] : childrens[1]);
   }
 
-  private static tournamentSelection(population: Population): Tour {
+  private tournamentSelection(population: Population): Tour {
     const populationTournament = new Population(String(this._tournamentSize));
     for (let i = 0; i < this._tournamentSize; i++) {
       const randomedId = Math.floor(Math.random() * population.size);
@@ -42,7 +52,7 @@ export class Genetic {
     return populationTournament.getFittiest();
   }
 
-  private static crossover(parent1: Tour, parent2: Tour): Tour {
+  private crossover(parent1: Tour, parent2: Tour): Tour {
     const tourSize = parent1.size;
     const child: Tour = new Tour();
     const startPos = Math.floor(Math.random() * tourSize);
@@ -72,7 +82,7 @@ export class Genetic {
     return child;
   }
 
-  private static mutate(tour: Tour) {
+  private mutate(tour: Tour) {
     for (let tourPos1 = 0; tourPos1 < tour.size; tourPos1++) {
       if (Math.random() < this._mutationRate) {
         const tourPos2 = Math.floor(Math.random() * tour.size);

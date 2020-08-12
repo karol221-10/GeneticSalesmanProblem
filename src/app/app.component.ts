@@ -6,6 +6,7 @@ import {Tour} from './types/Tour';
 import {Population} from './types/Population';
 import { Genetic } from './algorithms/Genetic';
 import { timer, Observable } from 'rxjs';
+import {SafeUrl} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
@@ -27,9 +28,11 @@ export class AppComponent {
   private timerSubscription;
   private timerStarted = false;
   private leftPopulations = 0;
+  private geneticPerformer: Genetic = new Genetic();
   populationGeneration = 1;
   mutationRate = 0.015;
   tournamentCount = 10;
+  selectedFile: File;
 
   onGenerateButtonClick() {
     this.populationGeneration = 1;
@@ -40,6 +43,10 @@ export class AppComponent {
     this.cities = this.townManager.generateCities(this.numberOfCities, this.salesmanMap.width, this.salesmanMap.height);
     this.population = new Population(this.populationSize);
     this.population.init(this.cities);
+    this.drawBestPopulation();
+  }
+
+  private drawBestPopulation() {
     const bestTour = this.population.getFittiest();
     // draw
     this.cities.forEach(city => {
@@ -76,7 +83,7 @@ export class AppComponent {
   }
 
   private performSingleEvolutionStep() {
-    this.population = Genetic.evolvePopulation(this.population, this.tournamentCount, this.mutationRate);
+    this.population = this.geneticPerformer.evolvePopulation(this.population, this.tournamentCount, this.mutationRate);
     this.populationGeneration++;
     this.salesmanMap.clear();
     const bestTour = this.population.getFittiest();
@@ -87,5 +94,52 @@ export class AppComponent {
     citiesPairs.forEach(citiesPair => {
       this.salesmanMap.drawConnection(citiesPair[0], citiesPair[1]);
     });
+  }
+
+  onSaveClick() {
+    const toExport = {
+      cities: this.cities,
+      tours: this.population.tours
+    };
+
+    const json = JSON.stringify(toExport);
+    const element = document.createElement('a');
+    element.setAttribute('href', 'data:text/json;charset=UTF-8,' + encodeURIComponent(json));
+    element.setAttribute('download', 'dataExport.json');
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  }
+
+  onLoadClick() {
+
+  }
+
+  onFileChanged(event) {
+    this.selectedFile = event.target.files[0];
+    const fileReader = new FileReader();
+    fileReader.readAsText(this.selectedFile, "UTF-8");
+    fileReader.onload = () => {
+      const object = JSON.parse(fileReader.result.toString());
+      const convertedTours: Tour[] = [];
+      for (const tour of object.tours) {
+        const cities: City[] = [];
+        for (let i = 0; i < tour._cities.length; i++) {
+          cities.push(new City(tour._cities[i]._x, tour._cities[i]._y));
+        }
+        const newTour = new Tour(cities);
+        convertedTours.push(newTour);
+      };
+
+      this.population = new Population(object.tours.length);
+      this.population.initFromImport(convertedTours);
+      this.cities = [];
+      for (const city of object.cities) {
+        const addedCity = new City(city._x, city._y);
+        this.cities.push(addedCity);
+      }
+      this.drawBestPopulation();
+    };
   }
 }

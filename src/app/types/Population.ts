@@ -22,6 +22,10 @@ export class Population {
     }
   }
 
+  public initFromImport(tourList: Tour[]) {
+    this._tours = tourList;
+  }
+
   public saveTour(index: number, tour: Tour) {
     this._tours[index] = tour;
   }

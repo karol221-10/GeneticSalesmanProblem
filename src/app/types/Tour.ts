@@ -14,6 +14,13 @@ export class Tour {
     return distanceToCalc;
   }
 
+  constructor(cities?: City[]) {
+    this._cities = cities;
+    if (this._cities === undefined) {
+      this._cities = [];
+    }
+  }
+
   get cities() {
     return this._cities;
   }
@@ -34,6 +41,12 @@ export class Tour {
   public setCity(position, city: City) {
     this._cities[position] = city;
   }
+
+  public getCity(position: number) {
+    return this._cities[position];
+  }
+
+
 
   public getCitiesPairs() {
     const citiesPairs: [City, City][] = [];
