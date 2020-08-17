@@ -1,5 +1,5 @@
 import {CrossoverStrategy} from './CrossoverStrategy';
-import { Tour } from '../../types/Tour';
+import {Tour} from '../../types/Tour';
 import {City} from '../../types/City';
 
 
@@ -31,48 +31,36 @@ export class PMXCrossoverStrategy implements CrossoverStrategy {
   }
 
   generateTourFromParents(parent1: Tour, parent2: Tour): Tour[] {
-    const mappingForChildren1 = new Map();
-    const mappingForChildren2 = new Map();
+    return [
+      new Tour(this.performCrossOverForChildren(parent1, parent2)),
+      new Tour(this.performCrossOverForChildren(parent2, parent1))
+    ];
+  }
 
-    const children = [Array.from(parent1.cities), Array.from(parent2.cities)];
-
+  private performCrossOverForChildren(parent1: Tour, parent2: Tour) : City[] {
+    const mappingForChildren = new Map();
+    const children: City[] = Array.from(parent1.cities);
     for (let i = this._x1; i < this._x2; i++) {
-      if (children[0][i] !== parent2.getCity(i)) {
-        children[0][i] = parent2.getCity(i);
-        mappingForChildren1.set(parent2.getCity(i), parent1.getCity(i));
-      }
-
-      if (children[1][i] !== parent1.getCity(i)) {
-        children[1][i] = parent1.getCity(i);
-        mappingForChildren2.set(parent1.getCity(i), parent2.getCity(i));
+      if (children[i] !== parent2.getCity(i)) {
+        children[i] = parent2.getCity(i);
+        mappingForChildren.set(parent2.getCity(i), parent1.getCity(i));
       }
     }
-    this.eliminateTransitives(mappingForChildren1);
-    this.eliminateTransitives(mappingForChildren2);
-    this.eliminateCycles(mappingForChildren1);
-    this.eliminateCycles(mappingForChildren2);
+    this.eliminateTransitives(mappingForChildren);
+    this.eliminateCycles(mappingForChildren);
 
     for (let i = 0; i < this._x1; i++) {
-      while (mappingForChildren1.has(children[0][i])) {
-        children[0][i] = mappingForChildren1.get(children[0][i]);
-      }
-
-      while (mappingForChildren2.has(children[1][i])) {
-        children[1][i] = mappingForChildren2.get(children[1][i]);
+      while (mappingForChildren.has(children[i])) {
+        children[i] = mappingForChildren.get(children[i]);
       }
     }
 
     for (let i = this._x2; i < parent1.size; i++) {
-      while (mappingForChildren1.has(children[0][i])) {
-        children[0][i] = mappingForChildren1.get(children[0][i]);
-      }
-
-      while (mappingForChildren2.has(children[1][i])) {
-        children[1][i] = mappingForChildren2.get(children[1][i]);
+      while (mappingForChildren.has(children[i])) {
+        children[i] = mappingForChildren.get(children[i]);
       }
     }
-    const tours = [new Tour(children[0]), new Tour(children[1])];
-    return tours;
+    return children;
   }
 
   private eliminateTransitives(mappingForChildren : Map<City, City>) {

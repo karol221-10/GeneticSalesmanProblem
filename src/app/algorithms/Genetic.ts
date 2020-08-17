@@ -1,12 +1,11 @@
-import {Population} from '../types/Population';
-import {Tour} from '../types/Tour';
-import {CrossoverStrategy} from './crossover/CrossoverStrategy';
-import {PMXCrossoverStrategy} from './crossover/PMXCrossoverStrategy';
+import { Population } from '../types/Population';
+import { Tour } from '../types/Tour';
+import { CrossoverStrategy } from './crossover/CrossoverStrategy';
+import { PMXCrossoverStrategy } from './crossover/PMXCrossoverStrategy';
 
 export class Genetic {
   private _mutationRate = 0.015;
   private _tournamentSize = 5;
-  private ellitism = true;
   private strategies: CrossoverStrategy[] = [];
   private selectedStrategy: CrossoverStrategy;
 
@@ -20,22 +19,16 @@ export class Genetic {
     this._tournamentSize = tournamentSize;
     const newPopulation: Population = new Population(String(population.size));
 
-    let ellitismOffset = 0;
-    if (this.ellitism) {
-      newPopulation.saveTour(0, population.getFittiest());
-      ellitismOffset = 1;
-    }
-
     for (let i = 0; i < newPopulation.size; i++) {
-      this.performCrossOver(population, newPopulation, i);
+      this.performSelectionAndCrossover(population, newPopulation, i);
     }
-    for (let i = ellitismOffset; i < newPopulation.size; i++) {
+    for (let i = 0; i < newPopulation.size; i++) {
       this.mutate(newPopulation.tours[i]);
     }
     return newPopulation;
   }
 
-  private performCrossOver(population: Population, newPopulation: Population, index: number) {
+  private performSelectionAndCrossover(population: Population, newPopulation: Population, index: number) {
         const parent1 = this.tournamentSelection(population);
         const parent2 = this.tournamentSelection(population);
         this.selectedStrategy.prepareStrategyData(parent1, parent2);
@@ -50,36 +43,6 @@ export class Genetic {
       populationTournament.saveTour(i, population.tours[randomedId]);
     }
     return populationTournament.getFittiest();
-  }
-
-  private crossover(parent1: Tour, parent2: Tour): Tour {
-    const tourSize = parent1.size;
-    const child: Tour = new Tour();
-    const startPos = Math.floor(Math.random() * tourSize);
-    const endPos = Math.floor(Math.random() * tourSize);
-
-    for (let i = 0; i < tourSize; i++) {
-      if (startPos < endPos && i > startPos && i < endPos) {
-        child.setCity(i, parent1.cities[i]);
-      }
-      else {
-        if (!(i < startPos && i > endPos)) {
-          child.setCity(i, parent1.cities[i]);
-        }
-      }
-    }
-
-    for (let i = 0; i < tourSize; i++) {
-      if (!child.contains(parent2.cities[i])) {
-        for (let ii = 0; ii < tourSize; ii++) {
-          if (child.cities[ii] == null) {
-            child.setCity(ii, parent2.cities[i]);
-            break;
-          }
-        }
-      }
-    }
-    return child;
   }
 
   private mutate(tour: Tour) {
